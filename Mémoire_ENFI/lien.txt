@@ -1,0 +1,197 @@
+https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbTB5R1pPOXBiMmw4SDF1aDVLSG0wUHpNRHB3UXxBQ3Jtc0ttdVRuUmFHZHdIb0Nkd0xvVDU5aGVmTTN4YlVZS2FiR1ZLdVFjY0t1QXdfc2pIV0pxWmRsR2NMU0NlYnZFQ1RIWXQxaXlDd1ZkQ3VPWjhqQ1pHc3NERmFIa2s5cm9ZcnN0cTNlUGRvdmZDdXFVa3pQTQ&q=https%3A%2F%2Fcode.earthengine.google.com%2F6aecc37c18f9c76bf77e2f870d93748c&v=C-yePXgmbvc
+
+
+https://e-cours.univ-paris1.fr/modules/uved/envcal/html/compositions-colorees/3-differentes-composition-coloree/2-1-vraie-fausse-couleur%20.html
+
+
+
+
+
+Caractéristiques des images satellitaire Sentinel-2 et Landsat 8 
+Landsat 8 a été développé par la NASA et l’USGS en 2013. Le satellite embarque deux capteurs avec un imageur terrestre opérationnel (OLI) et un capteur infrarouge thermique (TIRS)[14] .Environ toutes les deux semaines, toute la surface de la terre est prise avec une résolution de 30 mètres. Les produits qui peuvent être obtenu directement via la plate-forme GEE comprennent la réflectance de surface, Haut de l’atmosphère, et des images brutes. Dans notre recherche, nous avons sélectionné sept bandes de Landsat 8, y compris le bleu (B2), le vert (B3), le rouge (B4), le proche infrarouge (B5), l’infrarouge à ondes courtes 1 (B6), l’infrarouge court 2 (B7) et l’infrarouge thermique 2 (B11). Pour créer un composite Landsat 8 simple sans nuages image, nous avons utilisé la méthode composite simple pour sélectionner un sous-ensemble de la scène à chaque endroit. Alors cette image a été convertie en réflectance TOA (Top-of-Atmosphere Reflectance) en appliquant un score de nuage simple et médiane des pixels les moins nuageux.
+Sentinel-2 est un satellite d’imagerie multispectrale lancé par l’Agence spatiale européenne (ESA) en 2015. Il est divisé en deux satellites 2A et 2B avec une résolution au sol de 10m, 20m et 60m[15]. Une fois que les deux satellites sont entrés en état de fonctionnement en même temps, dans des circonstances complémentaires, la période de reprise sera réduite de 10 à 5 jours. 
+La plate-forme GEE propose deux types de produits : la réflectance de surface et le TOA. Dans cette étude, nous avons utilisé TOA, Multi-Spectral Instrument et Level-1C image. Sentinel-2 dispose d’une variété de résolutions, cet article sélectionne quatre bandes avec une résolution de 10m, dont le bleu (B2), le vert (B3), rouge (B4) et proche infrarouge (B8), Les valeurs d’attribut des images Sentinel-2 sont présentées dans le Tableau 1.
+
+
+
+
+
+
+
+
+// Function to reduce the image within the defined region
+var reduceImage = function(image) {
+  var reduced = image.reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: region,
+    scale: 30,
+    maxPixels: 1e9,  // Allow up to 1 billion pixels
+    bestEffort: true // Allow best effort aggregation
+  });
+
+  // Return an ee.Feature with the reduced values and the time property
+  return ee.Feature(null, {
+    'NDVI': reduced.get('NDVI'),
+    'NDWI': reduced.get('NDWI'),
+    'EVI': reduced.get('EVI'),
+    'system:time_start': image.get('system:time_start')
+  });
+};
+
+// Map the reduction function over the image collection
+var reducedCollection = annualndvi.select(['NDVI', 'NDWI', 'EVI']).map(reduceImage);
+
+// Convert the results to a feature collection for charting
+var chartData = ee.FeatureCollection(reducedCollection);
+
+// Create the chart
+var chart = ui.Chart.feature.byFeature(chartData, 'system:time_start')
+  .setSeriesNames(['NDVI', 'NDWI', 'EVI']) // Set the series names
+  .setOptions({
+    title: 'Annual Time Series Chart',
+    vAxis: { title: 'Value' },
+    hAxis: { title: 'Year' },
+    series: {
+      0: { label: 'NDVI', color: 'green' },
+      1: { label: 'NDWI', color: 'blue' },
+      2: { label: 'EVI', color: 'red' }
+    }
+  });
+
+// Display the chart
+print(chart);
+
+
+
+
+
+
+// Function to calculate NDVI
+var addNDVI = function(image) {
+  var ndvi = image.normalizedDifference(['B5', 'B4']).rename('NDVI');
+  return image.addBands(ndvi);
+};
+
+// Load Landsat 8 Data
+var landsat8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
+  .filterBounds(region)
+  .filterMetadata('CLOUD_COVER', 'less_than', 20)
+  .map(addNDVI);
+
+// Définir l'année cible (par exemple 2024)
+var targetYear = 2016;
+
+// Liste des mois
+var months = ee.List.sequence(1, 12);
+
+// Calculer le NDVI médian pour chaque mois de l'année spécifiée
+var monthlyNDVI = ee.ImageCollection.fromImages(
+  months.map(function(month) {
+    var monthly = landsat8
+      .filter(ee.Filter.calendarRange(targetYear, targetYear, 'year'))
+      .filter(ee.Filter.calendarRange(month, month, 'month'));
+    
+    // Vérifier s'il y a des images pour ce mois
+    var hasImages = monthly.size().gt(0);
+    
+    // Si des images existent, calculer la médiane, sinon retourner une image nulle
+    var monthlyMedian = ee.Algorithms.If(hasImages,
+      monthly.median().set('month', month).set('system:time_start', ee.Date.fromYMD(targetYear, month, 1)),
+      ee.Image().set('month', month).set('system:time_start', ee.Date.fromYMD(targetYear, month, 1))
+    );
+    
+    return ee.Image(monthlyMedian);
+  })
+);
+
+// Fonction pour réduire l'image et obtenir la moyenne du NDVI dans la région définie
+var reduceImage = function(image) {
+  // Vérifier si l'image a une bande NDVI
+  var hasNDVI = image.bandNames().contains('NDVI');
+  
+  // Si l'image a une bande NDVI, calculer la moyenne, sinon retourner null
+  var ndviValue = ee.Algorithms.If(hasNDVI,
+    image.select('NDVI').reduceRegion({
+      reducer: ee.Reducer.mean(),
+      geometry: region,
+      scale: 30,
+      maxPixels: 1e9,
+      bestEffort: true
+    }).get('NDVI'),
+    null
+  );
+  
+  return ee.Feature(null, {
+    'NDVI': ndviValue,
+    'system:time_start': image.get('system:time_start')
+  });
+};
+
+// Appliquer la fonction de réduction à la collection d'images
+var reducedCollection = monthlyNDVI.map(reduceImage);
+
+// Filtrer les valeurs nulles
+var validData = reducedCollection.filter(ee.Filter.notNull(['NDVI']));
+
+// Créer le graphique
+var chart = ui.Chart.feature.byFeature({
+  features: validData,
+  xProperty: 'system:time_start',
+  yProperties: ['NDVI']
+})
+.setChartType('LineChart')
+.setOptions({
+  title: 'Monthly NDVI Time Series for ' + targetYear,
+  vAxis: { title: 'NDVI Value', viewWindow: {min: 0, max: 1} },
+  hAxis: { title: 'Month', format: 'MMM' },
+  series: {
+    0: { lineWidth: 2, pointSize: 4, color: 'green' },
+  },
+  chartArea: {width: '80%', height: '70%'},
+  legend: {position: 'none'}
+});
+
+// Afficher le graphique
+print(chart);
+
+// Afficher également le nombre de mois avec des données valides
+print('Nombre de mois avec des données NDVI valides:', validData.size());
+
+
+
+
+
+
+
+NDVI < 0 : zones d'eau, nuages, neige ou zones non végétalisées.
+0 ≤ NDVI < 0.2 : sols nus ou très faible végétation.
+0.2 ≤ NDVI < 0.5 : végétation modérée, typique des zones arbustives ou des prairies.
+NDVI > 0.5 : végétation dense, comme les forêts ou des zones de cultures en bonne santé.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add spectral indices
+var indices = ee.Image([
+  { name: 'EVI', formula: '(2.5 * (NIR - RED)) / (NIR + 6 * RED - 7.5 * BLUE + 1)' },
+  { name: 'NBR', formula: '(NIR - SWIR2) / (NIR + SWIR2)' },
+  { name: 'NDMI', formula: '(NIR - SWIR1) / (NIR + SWIR1)' },
+  { name: 'NDWI', formula: '(GREEN - NIR) / (GREEN + NIR)' },
+  { name: 'NDBI', formula: '(SWIR1 - NIR) / (SWIR1 + NIR)' },
+  { name: 'NDBaI', formula: '(SWIR1 - SWIR2) / (SWIR1 + SWIR2)' },
+].map(function(dict){
+  var indexImage = image.expression(dict.formula, bandMap).rename(dict.name);
+  return indexImage;
+}));
