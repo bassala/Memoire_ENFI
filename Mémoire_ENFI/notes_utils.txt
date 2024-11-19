@@ -1,1 +1,141 @@
 RGB652 = baren land (l8) apparait en jaune 
+
+
+https://www.azavea.com/blog/2017/05/30/deep-learning-on-aerial-imagery/
+
+https://developers.arcgis.com/python/latest/samples/extracting-features-and-land-use-land-cover-using-panoptic-segmentation/
+
+https://developers.arcgis.com/python/latest/samples/land-cover-classification-using-sparse-training-data/
+
+
+ La mission S2/MSI fournit des données avec une fréquence de revisite de 5 jours, une résolution radiométrique de 16 bits et une largeur de fauchée de 290 km [30,31]. En raison de leurs capacités spectrales (y compris trois bandes dans le Red-edge et deux bandes dans le SWIR), la mission S2/MSI offre de nouvelles possibilités de cartographie [33,34,35]. Ces bandes peuvent être considérées comme plus liées à l’analyse de la végétation que les bandes L8/OLI, car cette gamme de longueurs d’onde est sensible à la teneur en chlorophylle et très variable entre différentes cultures et différents états phénologiques [36,37], ce qui peut être utile pour dériver des rapports de bande et pour calculer une grande variété d’indices, utiles pour la discrimination de la végétation et la classification LULC [38, 39,40]. 
+
+
+
+claude:
+Le Rif, chaîne montagneuse du nord du Maroc, connaît une végétation caractéristique du climat méditerranéen avec quelques particularités :
+Périodes principales de végétation :
+
+Printemps (Mars-Mai) :
+
+
+Période la plus active pour la végétation
+Floraison maximale grâce aux pluies hivernales
+Développement des plantes annuelles
+
+
+Automne (Septembre-Novembre) :
+
+
+Seconde période de croissance
+Reprise de la végétation après la sécheresse estivale
+Germination de nombreuses espèces
+
+Facteurs influençant la végétation :
+
+Précipitations : 600-1000 mm/an, concentrées en hiver
+Altitude : varie de 0 à 2456m (Jbel Tidirhine)
+Exposition aux vents marins
+Sol : principalement calcaire et schisteux
+
+Végétation caractéristique :
+
+Chêne-liège
+Chêne vert
+Pin d'Alep
+Thuya
+Plantes aromatiques (thym, romarin)
+Végétation endémique rifaine
+
+La période de dormance intervient :
+
+En été : à cause de la sécheresse (Juin-Août)
+En hiver : ralentissement dû au froid en altitude (Décembre-Février)
+
+Souhaitez-vous des informations plus détaillées sur un aspect particulier de la végétation rifaine ?
+
+
+chatgpt:
+
+
+Généralement, on observe les phases suivantes :
+Phase de démarrage végétatif (hiver - début du printemps)
+
+Période : Décembre à mars.
+Les précipitations hivernales abondantes permettent aux plantes de sortir de leur dormance. La végétation commence à croître, particulièrement dans les zones de faible altitude.
+Période de croissance active (printemps)
+
+Période : Mars à mai.
+C’est la période où la végétation atteint son apogée, grâce à la combinaison de températures modérées et de précipitations suffisantes.
+Phase de maturation et ralentissement (début de l'été)
+
+Période : Juin à juillet.
+Les plantes terminent leur cycle de croissance alors que les températures augmentent et que les précipitations diminuent.
+Période de stress hydrique ou dormance estivale (été)
+
+Période : Juillet à septembre.
+Les hautes températures et l’absence de pluie entraînent une dormance des plantes, sauf pour certaines espèces adaptées à la sécheresse (comme les oliviers ou le pin maritime).
+Relance végétative (automne)
+
+Période : Octobre à novembre.
+Les premières pluies automnales permettent une reprise modérée de la végétation, surtout pour les espèces vivaces et les sols non cultivés.
+Facteurs influents :
+Altitude : Les zones plus élevées connaissent une végétation plus tardive et une période active plus courte.
+Type de sol : Les sols riches en eau permettent une meilleure croissance.
+Activités humaines : Agriculture (culture des céréales, oliviers, etc.) et pâturage modifient les cycles naturels.
+Si vous avez besoin de données précises ou d'analyses pour une période spécifique, n'hésitez pas à demander ! 😊
+
+
+
+
+
+
+Vous avez dit :
+donne la source 
+ChatGPT a dit :
+ChatGPT
+
+Recherche terminée dans 5 sites
+Le Rif, situé au nord du Maroc, est caractérisé par un climat méditerranéen influencé par l'altitude et la proximité de la mer. La période de végétation dans cette région s'étend généralement de la fin de l'hiver au début de l'été, lorsque les températures sont douces et les précipitations suffisantes pour favoriser la croissance végétale. Les mois d'octobre à avril sont souvent les plus propices à la croissance en raison des pluies hivernales, tandis que l'été, marqué par une sécheresse notable, est moins favorable.
+
+Dans les montagnes du Rif, la végétation est influencée par des étages bioclimatiques spécifiques, tels que ceux décrits par les travaux de Sauvage et Emberger, qui relient étroitement le climat aux types de végétation présents. Les précipitations dans ces zones montagneuses sont souvent plus abondantes, atteignant jusqu'à 1000 mm par an, favorisant une biodiversité importante​
+ASCETE
+​
+CLIMATS ET VOYAGES
+.
+
+Pour des informations détaillées sur les zones spécifiques ou les variétés végétales adaptées, vous pouvez consulter des études sur le climat et la végétation du Rif, comme celles référencées par Climats et Voyages ou d'autres ressources spécialisées.
+
+
+
+
+
+
+
+
+flowchart TD
+    A[Acquisition des données]
+    A1[Données Sentinel 2]
+    A2[Données Landsat 8]
+    
+    B[Prétraitement des images]
+    
+    C1[Calcul des indices de végétation]
+    C2[Application de l'apprentissage automatique]
+    
+    CP[Précision des indices]
+    
+    D1[Évaluation de la performance des indices]
+    D2[Évaluation de la performance de l'apprentissage automatique]
+    
+    A --> A1
+    A --> A2
+    A1 --> B
+    A2 --> B
+    
+    B --> C1
+    B --> C2
+    
+    C1 --> CP
+    CP --> D1
+    C2 --> D2
